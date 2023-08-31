@@ -1,0 +1,57 @@
+{
+  "id": "pf2e-troops-helper",
+  "title": "PF2e Troops Helper",
+  "description": "PF2e Troops Helper",
+  "version": "0.0.1",
+  "authors": [
+    {
+      "name": "Reyzor",
+      "url": "https://github.com/reyzor1991",
+      "discord": "reyzor1991"
+    }
+  ],
+  "languages": [],
+  "esmodules": [
+    "pf2e-troops-helper.js"
+  ],
+  "styles": [
+    "pf2e-troops-helper.css"
+  ],
+  "packFolders": [],
+  "packs": [
+    {
+      "label": "troops Macros",
+      "name": "troops-macros",
+      "path": "packs/troops-macros.db",
+      "system": "pf2e",
+      "private": false,
+      "type": "Macro",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    }
+  ],
+  "media": [],
+  "compatibility": {
+    "minimum": "11",
+    "verified": "11.308"
+  },
+  "manifest": "https://drive.usercontent.google.com/download?id=1dngFF1sBv_mrCkxSWZyLG2VztPTSsZjt",
+  "download": "https://drive.usercontent.google.com/download?id=1d2p9B7gHSet406PZoLi0xn1nX3g1kCHj",
+  "relationships": {
+    "systems": [
+      {
+        "id": "pf2e",
+        "type": "system",
+        "manifest": "https://github.com/foundryvtt/pf2e/releases/latest/download/system.json",
+        "compatibility": {
+          "minimum": "5.4.1",
+          "verified": "5.4.1"
+        }
+      }
+    ],
+    "requires": []
+  }
+}

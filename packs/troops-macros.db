@@ -1,0 +1,1 @@
+{ "_id": "fR5sTpQZjT3nJ9Ap", "author": "E9zWf1a6ounUt7Ro", "command": "game.pf2etroopshelper.formUp();", "img": "systems/pf2e/icons/actions/OneAction.webp", "name": "Form Up", "ownership": { "default": 1 }, "scope": "global", "type": "script" }
