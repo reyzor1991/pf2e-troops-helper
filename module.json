@@ -20,7 +20,7 @@
   "packFolders": [],
   "packs": [
     {
-      "label": "troops Macros",
+      "label": "Troops Macros",
       "name": "troops-macros",
       "path": "packs/troops-macros.db",
       "system": "pf2e",
@@ -52,6 +52,23 @@
         }
       }
     ],
-    "requires": []
+    "requires": [
+      {
+          "id": "pf2e-jb2a-macros",
+          "type": "module",
+          "manifest": "https://github.com/MrVauxs/pf2e-jb2a-macros/releases/latest/download/module.json",
+          "compatibility": {
+              "minimum": "2.16.8"
+          }
+      },
+      {
+          "id": "foundry-summons",
+          "type": "module",
+          "manifest": "https://github.com/MrVauxs/foundry-summons/releases/latest/download/module.json",
+          "compatibility": {
+              "minimum": "1.5.2"
+          }
+      }
+    ]
   }
 }
