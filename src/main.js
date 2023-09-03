@@ -34,9 +34,21 @@ async function createTroop() {
     const originY = _token.y;
 
     const actorOrigin = await fromUuid(`Actor.${_token.actor.id}`);
-    await actorOrigin.update( {prototypeToken: {actorLink: true}} );
-    await actorOrigin.update( {system: {traits: {size: {value: 'med'}}}} );
-    await actorOrigin.update( {system: {attributes: {hp: {value: actorOrigin.system.attributes.hp.max }}}} );
+    await actorOrigin.update({
+        prototypeToken: {actorLink: true},
+        system: {
+            traits: { size: {value: 'med'} },
+            attributes: {hp: {value: actorOrigin.system.attributes.hp.max }}
+        },
+        flags: {
+            [moduleName]: {
+                isTroop: true,
+                firstStage: false,
+                secondStage: false,
+            }
+        }
+    });
+
     actorOrigin.itemTypes.effect.forEach(e=>e.delete());
     actorOrigin.itemTypes.affliction.forEach(e=>e.delete());
     await game.scenes.active.deleteEmbeddedDocuments("Token", [_token.id]);
@@ -62,4 +74,45 @@ Hooks.once("init", () => {
         "createTroop": createTroop,
     });
     canvasDistance = canvas.dimensions?.size ?? 100
+});
+
+Hooks.on('getSceneControlButtons', function addControl(sceneControls) {
+    if (!game.user.isGM) {return;}
+
+    const tokenControl = sceneControls.find((c) => c.name === 'token');
+    tokenControl.tools.push({
+        name: 'troop-army',
+        title: 'Create Troop',
+        icon: 'fas fa-people-arrows',
+        button: true,
+        onClick: () => createTroop(),
+    });
+});
+
+Hooks.on('preUpdateActor', async (actor, data, diff, id) => {
+    if (!actor.getFlag(moduleName, "isTroop")) {return}
+    if (data?.system?.attributes?.hp) {
+        const perc = (data.system.attributes.hp.value/actor.system.attributes?.hp.max).toFixed(2);
+        if (perc <= 0.33 && !actor.getFlag(moduleName, "secondStage")) {
+            //inform about 1/3
+            await actor.setFlag(moduleName, "secondStage", true);
+
+            ChatMessage.create({
+                type: CONST.CHAT_MESSAGE_TYPES.OOC,
+                content: `Please delete 4 token, troop HP reduced to 1/3`,
+                whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
+            });
+
+        } else if (perc <= 0.66 && !actor.getFlag(moduleName, "firstStage")) {
+            //inform about 2/3
+            await actor.setFlag(moduleName, "firstStage", true);
+
+            ChatMessage.create({
+                type: CONST.CHAT_MESSAGE_TYPES.OOC,
+                content: `Please delete 4 token, troop HP reduced to 2/3`,
+                whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
+            });
+        }
+
+    }
 });
