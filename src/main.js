@@ -51,6 +51,7 @@ async function createTroop() {
 
     actorOrigin.itemTypes.effect.forEach(e=>e.delete());
     actorOrigin.itemTypes.affliction.forEach(e=>e.delete());
+    actorOrigin.itemTypes.condition.forEach(e=>e.delete());
     await game.scenes.active.deleteEmbeddedDocuments("Token", [_token.id]);
 
     const tokens = [];
@@ -97,9 +98,15 @@ Hooks.on('preUpdateActor', async (actor, data, diff, id) => {
             //inform about 1/3
             await actor.setFlag(moduleName, "secondStage", true);
 
+            let value = 4;
+            if (!actor.getFlag(moduleName, "firstStage")) {
+                await actor.setFlag(moduleName, "firstStage", true);
+                value = 8;
+            }
+
             ChatMessage.create({
                 type: CONST.CHAT_MESSAGE_TYPES.OOC,
-                content: `Please delete 4 token, troop HP reduced to 1/3`,
+                content: `Please delete ${value} tokens, troop HP reduced to 1/3`,
                 whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
             });
 
@@ -109,7 +116,7 @@ Hooks.on('preUpdateActor', async (actor, data, diff, id) => {
 
             ChatMessage.create({
                 type: CONST.CHAT_MESSAGE_TYPES.OOC,
-                content: `Please delete 4 token, troop HP reduced to 2/3`,
+                content: `Please delete 4 tokens, troop HP reduced to 2/3`,
                 whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
             });
         }
