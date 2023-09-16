@@ -58,10 +58,11 @@ async function createTroop() {
     let i=0;
     for(let y = 0; y < 4; y++) {
         for(let x = 0; x < 4; x++) {
+            if (x === 0 && y === 0) {continue}
             tokens.push(
                 (await actorOrigin.getTokenDocument({
-                x: originX + x * canvasDistance,
-                y: originY + y * canvasDistance,
+                    x: originX + x * canvasDistance,
+                    y: originY + y * canvasDistance,
                 })).toObject()
             )
         }
