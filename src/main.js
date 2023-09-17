@@ -34,6 +34,9 @@ async function createTroop() {
     const originY = _token.y;
 
     const actorOrigin = await fromUuid(`Actor.${_token.actor.id}`);
+    const inCombat = game.combat?.turns?.find(a=>a.token.id === _token.id);
+    await game.scenes.active.deleteEmbeddedDocuments("Token", [_token.id]);
+
     await actorOrigin.update({
         prototypeToken: {actorLink: true},
         system: {
@@ -52,13 +55,10 @@ async function createTroop() {
     actorOrigin.itemTypes.effect.forEach(e=>e.delete());
     actorOrigin.itemTypes.affliction.forEach(e=>e.delete());
     actorOrigin.itemTypes.condition.forEach(e=>e.delete());
-    await game.scenes.active.deleteEmbeddedDocuments("Token", [_token.id]);
 
-    const tokens = [];
-    let i=0;
+    let tokens = [];
     for(let y = 0; y < 4; y++) {
         for(let x = 0; x < 4; x++) {
-            if (x === 0 && y === 0) {continue}
             tokens.push(
                 (await actorOrigin.getTokenDocument({
                     x: originX + x * canvasDistance,
@@ -67,7 +67,16 @@ async function createTroop() {
             )
         }
     }
-    await game.scenes.active.createEmbeddedDocuments("Token", tokens);
+
+    tokens = await game.scenes.active.createEmbeddedDocuments("Token", tokens);
+    if (inCombat) {
+        await game.combat.createEmbeddedDocuments("Combatant", [
+            {
+                tokenId: tokens[0].id,
+                initiative:inCombat.initiative,
+            },
+        ])
+    }
 }
 
 Hooks.once("init", () => {
@@ -90,6 +99,17 @@ Hooks.on('getSceneControlButtons', function addControl(sceneControls) {
         onClick: () => createTroop(),
     });
 });
+
+Hooks.on('preDeleteToken', (token, data) => {
+    if (!game.combat) {return}
+    if (!token.actorLink) {return}
+    if (!token.actor?.getFlag(moduleName, "isTroop")) {return}
+
+    if ( token.actor.system.attributes.hp.value > 0 && game.combat.turns.find(a=>a.token.id === token.id) ) {
+        ui.notifications.info('This token cannot be deleted. Token in initiative tracker.');
+        return false
+    }
+})
 
 Hooks.on('preUpdateActor', async (actor, data, diff, id) => {
     if (!actor.getFlag(moduleName, "isTroop")) {return}

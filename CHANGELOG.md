@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.0.3
+
+### New feature
+- Add check to avoid deleting troop token from combat tracker
+
 ## Version 0.0.2
 
 ### New feature
