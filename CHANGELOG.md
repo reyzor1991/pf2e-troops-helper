@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.0.4
+- Add check for existing token
+
 ## Version 0.0.3
 
 ### New feature

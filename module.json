@@ -2,7 +2,7 @@
   "id": "pf2e-troops-helper",
   "title": "PF2e Troops Helper",
   "description": "PF2e Troops Helper",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "authors": [
     {
       "name": "Reyzor",
@@ -36,7 +36,7 @@
   "media": [],
   "compatibility": {
     "minimum": "11",
-    "verified": "11.308"
+    "verified": "11.315"
   },
   "url": "https://www.patreon.com/Reyzor1991",
   "manifest": "https://drive.usercontent.google.com/download?id=1dngFF1sBv_mrCkxSWZyLG2VztPTSsZjt",
@@ -50,27 +50,10 @@
         "manifest": "https://github.com/foundryvtt/pf2e/releases/latest/download/system.json",
         "compatibility": {
           "minimum": "5.4.1",
-          "verified": "5.5.2"
+          "verified": "5.9.5"
         }
       }
     ],
-    "requires": [
-      {
-          "id": "pf2e-jb2a-macros",
-          "type": "module",
-          "manifest": "https://github.com/MrVauxs/pf2e-jb2a-macros/releases/latest/download/module.json",
-          "compatibility": {
-              "minimum": "2.16.8"
-          }
-      },
-      {
-          "id": "foundry-summons",
-          "type": "module",
-          "manifest": "https://github.com/MrVauxs/foundry-summons/releases/latest/download/module.json",
-          "compatibility": {
-              "minimum": "1.5.2"
-          }
-      }
-    ]
+    "requires": []
   }
 }
