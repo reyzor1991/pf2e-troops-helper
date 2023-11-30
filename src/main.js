@@ -35,8 +35,8 @@ async function createTroop() {
 
     const actorOrigin = await fromUuid(`Actor.${_token.actor.id}`);
     const inCombat = game.combat?.turns?.find(a=>a.token.id === _token.id);
-    if (game.scenes.active.tokens.has(_token.id)) {
-        await game.scenes.active.deleteEmbeddedDocuments("Token", [_token.id]);
+    if (_token.scene.tokens.has(_token.id)) {
+        await _token.scene.deleteEmbeddedDocuments("Token", [_token.id]);
     }
 
     await actorOrigin.update({
@@ -70,7 +70,7 @@ async function createTroop() {
         }
     }
 
-    tokens = await game.scenes.active.createEmbeddedDocuments("Token", tokens);
+    tokens = await _token.scene.createEmbeddedDocuments("Token", tokens);
     if (inCombat) {
         await game.combat.createEmbeddedDocuments("Combatant", [
             {

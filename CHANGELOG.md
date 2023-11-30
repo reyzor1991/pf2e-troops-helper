@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.0.5
+- Use correct scene
+
 ## Version 0.0.4
 - Add check for existing token
 
