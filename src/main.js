@@ -23,12 +23,13 @@ async function formUp() {
     return canvas.scene.updateEmbeddedDocuments("Token", updates);
 }
 
-async function createTroop() {
+async function createTroop(count=16) {
     if (!game.user.isGM) {
         ui.notifications.info(`Only GM can run script`);
         return
     }
     if (!_token) {ui.notifications.info("Need create select token");return;}
+    if (!count || count < 0 || count > 16) { ui.notifications.info("Copies of token should be up to 16");return; }
 
     const originX = _token.x;
     const originY = _token.y;
@@ -42,8 +43,7 @@ async function createTroop() {
     await actorOrigin.update({
         prototypeToken: {actorLink: true},
         system: {
-            traits: { size: {value: 'med'} },
-            attributes: {hp: {value: actorOrigin.system.attributes.hp.max }}
+            traits: { size: {value: 'med'} }
         },
         flags: {
             [moduleName]: {
@@ -54,10 +54,6 @@ async function createTroop() {
         }
     });
 
-    actorOrigin.itemTypes.effect.forEach(e=>e.delete());
-    actorOrigin.itemTypes.affliction.forEach(e=>e.delete());
-    actorOrigin.itemTypes.condition.forEach(e=>e.delete());
-
     let tokens = [];
     for(let y = 0; y < 4; y++) {
         for(let x = 0; x < 4; x++) {
@@ -67,7 +63,9 @@ async function createTroop() {
                     y: originY + y * canvasDistance,
                 })).toObject()
             )
+            if (tokens.length === count) { break; }
         }
+        if (tokens.length === count) { break; }
     }
 
     tokens = await _token.scene.createEmbeddedDocuments("Token", tokens);
@@ -84,7 +82,28 @@ async function createTroop() {
 Hooks.once("init", () => {
     game.pf2etroopshelper = mergeObject(game.pf2etroopshelper ?? {}, {
         "formUp": formUp,
-        "createTroop": createTroop,
+        "createTroop": async function() {
+            const { count } = await Dialog.wait({
+                title: "Select number of tokens (up to 16)",
+                content: `
+                    <input type="number" id="count" value="16"/>
+                `,
+                buttons: {
+                    ok: {
+                        label: "Create",
+                        icon: '<i class="fa-thin fa-location-arrow"></i>',
+                        callback: (html) => { return { count: $(html).find('#count').val() } }
+                    },
+                    cancel: {
+                        label: "Cancel",
+                        icon: "<i class='fa-solid fa-ban'></i>",
+                    }
+                },
+                default: "ok"
+            });
+            if (!count) { return }
+            createTroop(Number(count));
+        },
     });
     canvasDistance = canvas.dimensions?.size ?? 100
 });
