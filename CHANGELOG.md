@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.0.7
+- Move to dropbox
+
 ## Version 0.0.6
 - Change logic of macro - possibility to add up to 16 tokens
 - Button on panel create 16 tokens

@@ -2,7 +2,7 @@
   "id": "pf2e-troops-helper",
   "title": "PF2e Troops Helper",
   "description": "PF2e Troops Helper",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "authors": [
     {
       "name": "Reyzor",
@@ -39,9 +39,9 @@
     "verified": "11.315"
   },
   "url": "https://www.patreon.com/Reyzor1991",
-  "manifest": "https://drive.usercontent.google.com/download?id=1dngFF1sBv_mrCkxSWZyLG2VztPTSsZjt",
-  "download": "https://drive.usercontent.google.com/download?id=1d2p9B7gHSet406PZoLi0xn1nX3g1kCHj",
-  "changelog": "https://drive.google.com/file/d/1idoYmtKj_E0JafKo7Ifs53QdtqsxJQlN",
+  "manifest": "https://www.dropbox.com/scl/fi/hgxwl7f9vb1awvf19dq5a/module.json?rlkey=4orntdjugav4b1y0gi17cqzag&dl=1",
+  "download": "https://www.dropbox.com/scl/fi/1etid3wb0ag1y4yzztcqd/pf2e-troops-helper.zip?rlkey=0ieu3gm24e6dn32qte9ed6383&dl=1",
+  "changelog": "https://www.dropbox.com/scl/fi/wiotqz8zxh4wmnq1ycqbf/CHANGELOG.md?rlkey=6braecilclkp7f3tm240up0cb&dl=1",
   "relationships": {
     "systems": [
       {
