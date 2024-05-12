@@ -1,5 +1,8 @@
 # Changelog
 
+_## Version 0.0.8
+- Fix handling grid size_
+
 ## Version 0.0.7
 - Move to dropbox
 

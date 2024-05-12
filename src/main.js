@@ -1,7 +1,5 @@
 const moduleName = "pf2e-troops-helper";
 
-let canvasDistance = 100;
-
 async function formUp() {
     if (!game.user.isGM) {
         ui.notifications.info(`Only GM can run script`);
@@ -30,6 +28,8 @@ async function createTroop(count=16) {
     }
     if (!_token) {ui.notifications.info("Need create select token");return;}
     if (!count || count < 0 || count > 16) { ui.notifications.info("Copies of token should be up to 16");return; }
+
+    let canvasDistance = _token?.scene?.grid?.size ?? 100
 
     const originX = _token.x;
     const originY = _token.y;
@@ -105,7 +105,6 @@ Hooks.once("init", () => {
             createTroop(Number(count));
         },
     });
-    canvasDistance = canvas.dimensions?.size ?? 100
 });
 
 Hooks.on('getSceneControlButtons', function addControl(sceneControls) {
