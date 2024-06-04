@@ -80,7 +80,7 @@ async function createTroop(count=16) {
 }
 
 Hooks.once("init", () => {
-    game.pf2etroopshelper = mergeObject(game.pf2etroopshelper ?? {}, {
+    game.pf2etroopshelper = foundry.utils.mergeObject(game.pf2etroopshelper ?? {}, {
         "formUp": formUp,
         "createTroop": async function() {
             const { count } = await Dialog.wait({
