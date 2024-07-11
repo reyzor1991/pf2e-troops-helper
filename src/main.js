@@ -80,6 +80,14 @@ async function createTroop(count=16) {
 }
 
 Hooks.once("init", () => {
+    game.settings.register(moduleName, "autoDelete", {
+        scope: "world",
+        config: true,
+        name: "Auto delete tokens",
+        default: false,
+        type: Boolean,
+    });
+
     game.pf2etroopshelper = foundry.utils.mergeObject(game.pf2etroopshelper ?? {}, {
         "formUp": formUp,
         "createTroop": async function() {
@@ -145,21 +153,46 @@ Hooks.on('preUpdateActor', async (actor, data, diff, id) => {
                 value = 8;
             }
 
-            ChatMessage.create({
-                type: CONST.CHAT_MESSAGE_TYPES.OOC,
-                content: `Please delete ${value} tokens, troop HP reduced to 1/3`,
-                whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
-            });
+            if (game.settings.get(moduleName, "autoDelete")) {
+                let cTokens = game.combat?.turns?.map(a=>a.token.id) || [];
+                actor.getActiveTokens().filter(t=>!cTokens.includes(t.id)).slice(0, value).forEach(t=>{
+                    t.document.delete()
+                })
 
+                ChatMessage.create({
+                    type: CONST.CHAT_MESSAGE_TYPES.OOC,
+                    content: `${value} tokens were deleted, troop HP reduced to 1/3`,
+                    whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
+                });
+            } else {
+                ChatMessage.create({
+                    type: CONST.CHAT_MESSAGE_TYPES.OOC,
+                    content: `Please delete ${value} tokens, troop HP reduced to 1/3`,
+                    whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
+                });
+            }
         } else if (perc <= 0.66 && !actor.getFlag(moduleName, "firstStage")) {
             //inform about 2/3
             await actor.setFlag(moduleName, "firstStage", true);
 
-            ChatMessage.create({
-                type: CONST.CHAT_MESSAGE_TYPES.OOC,
-                content: `Please delete 4 tokens, troop HP reduced to 2/3`,
-                whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
-            });
+            if (game.settings.get(moduleName, "autoDelete")) {
+                let cTokens = game.combat?.turns?.map(a=>a.token.id) || [];
+                actor.getActiveTokens().filter(t=>!cTokens.includes(t.id)).slice(0, 4).forEach(t=>{
+                    t.document.delete()
+                })
+
+                ChatMessage.create({
+                    type: CONST.CHAT_MESSAGE_TYPES.OOC,
+                    content: `4 tokens were deleted, troop HP reduced to 2/3`,
+                    whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
+                });
+            } else {
+                ChatMessage.create({
+                    type: CONST.CHAT_MESSAGE_TYPES.OOC,
+                    content: `Please delete 4 tokens, troop HP reduced to 2/3`,
+                    whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
+                });
+            }
         }
 
     }
