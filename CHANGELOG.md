@@ -1,5 +1,8 @@
 # Changelog
 
+### Version 0.1.2
+- Wiki
+
 ### Version 0.1.1
 - Auto delete tokens
 
