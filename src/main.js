@@ -1,49 +1,138 @@
 const moduleName = "pf2e-troops-helper";
 
-async function formUp() {
+function getAllCoordinates(x, y, width) {
+    const size = canvas.dimensions.size;
+
+    const startY = y;
+    const arr = [];
+
+    for (let i = 0; i < width; i++) {
+        for (let j = 0; j < width; j++) {
+            arr.push({x, y});
+            y += size;
+        }
+        y = startY;
+        x += size;
+    }
+    return arr
+};
+
+const newCoords = [
+    {x: -1, y: 0},
+    {x: -2, y: 0},
+    {x: -3, y: 0},
+    {x: 1, y: 0},
+    {x: 2, y: 0},
+    {x: 3, y: 0},
+
+    {x: -1, y: 1},
+    {x: -2, y: 1},
+    {x: -3, y: 1},
+    {x: 0, y: 1},
+    {x: 1, y: 1},
+    {x: 2, y: 1},
+    {x: 3, y: 1},
+    {x: -1, y: -1},
+    {x: -2, y: -1},
+    {x: -3, y: -1},
+    {x: 0, y: -1},
+    {x: 1, y: -1},
+    {x: 2, y: -1},
+    {x: 3, y: -1},
+
+    {x: -1, y: 2},
+    {x: -2, y: 2},
+    {x: 0, y: 2},
+    {x: 1, y: 2},
+    {x: 2, y: 2},
+    {x: -1, y: -2},
+    {x: -2, y: -2},
+    {x: 0, y: -2},
+    {x: 1, y: -2},
+    {x: 2, y: -2},
+
+    {x: -1, y: 3},
+    {x: 0, y: 3},
+    {x: 1, y: 3},
+    {x: -1, y: -3},
+    {x: 0, y: -3},
+    {x: 1, y: -3},
+]
+
+async function formUp(token) {
     if (!game.user.isGM) {
         ui.notifications.info(`Only GM can run script`);
         return
     }
-    if (!_token) {ui.notifications.info("Need create select token");return;}
-    const tokens = _token.actor.getActiveTokens().sort((a,b) => (a === _token) ? -1 : 1);
-    const topLeft = {x: _token.document.x, y: _token.document.y};
-    const updates = [];
-    let i=0;
-    for(let y = 0; y < 4; y++) {
-      for(let x = 0; x < 4; x++) {
-        const token = tokens[i];
-        i++;
-        if(!token) continue;
-        updates.push({_id: token.id, x: topLeft.x + x * canvas.grid.size, y: topLeft.y + y * canvas.grid.size});
-      }
+    if (!token) {
+        ui.notifications.info("Need create select token");
+        return;
     }
-    return canvas.scene.updateEmbeddedDocuments("Token", updates);
+    let canvasDistance = canvas.dimensions?.size ?? 100
+    const tokensForUpdate = token.actor.getActiveTokens().filter(t => t != token);
+    const occupied = token.scene.tokens
+        .filter(t => !tokensForUpdate.includes(t.object) && t.object != token)
+        .map(t => getAllCoordinates(t.x, t.y, t.width)).flat()
+        .map(a => JSON.stringify(a));
+
+    let newPossibleLocations = foundry.utils.deepClone(newCoords).map(c => {
+        return {
+            x: token.x + c.x * canvasDistance,
+            cx: token.center.x + c.x * canvasDistance,
+            y: token.y + c.y * canvasDistance,
+            cy: token.center.y + c.y * canvasDistance
+        }
+    });
+
+    let availableLocations = newPossibleLocations.filter(coo => {
+        return !CONFIG.Canvas.polygonBackends.move.testCollision(token.center, {x: coo.cx, y: coo.cy}, {
+            type: 'move',
+            mode: 'any'
+        })
+    }).filter(target => {
+        return !occupied.includes(JSON.stringify({x: target.x, y: target.y}));
+    });
+
+    for (let i = 0; i < tokensForUpdate.length; i++) {
+        if (!availableLocations.length) {
+            continue
+        }
+        let ttt = tokensForUpdate[i];
+        let nn = availableLocations.shift();
+        await ttt.document.update({x: nn.x, y: nn.y})
+    }
+    ui.notifications.info(`Troop formed Up`);
 }
 
-async function createTroop(count=16) {
+async function createTroop(token, count = 16) {
     if (!game.user.isGM) {
         ui.notifications.info(`Only GM can run script`);
         return
     }
-    if (!_token) {ui.notifications.info("Need create select token");return;}
-    if (!count || count < 0 || count > 16) { ui.notifications.info("Copies of token should be up to 16");return; }
+    if (!token) {
+        ui.notifications.info("Need create select token");
+        return;
+    }
+    if (!count || count < 0 || count > 16) {
+        ui.notifications.info("Copies of token should be up to 16");
+        return;
+    }
 
-    let canvasDistance = _token?.scene?.grid?.size ?? 100
+    let canvasDistance = token?.scene?.grid?.size ?? 100
 
-    const originX = _token.x;
-    const originY = _token.y;
+    const originX = token.x;
+    const originY = token.y;
 
-    const actorOrigin = await fromUuid(`Actor.${_token.actor.id}`);
-    const inCombat = game.combat?.turns?.find(a=>a.token.id === _token.id);
-    if (_token.scene.tokens.has(_token.id)) {
-        await _token.scene.deleteEmbeddedDocuments("Token", [_token.id]);
+    const actorOrigin = await fromUuid(`Actor.${token.actor.id}`);
+    const inCombat = game.combat?.turns?.find(a => a.token.id === token.id);
+    if (token.scene.tokens.has(token.id)) {
+        await token.scene.deleteEmbeddedDocuments("Token", [token.id]);
     }
 
     await actorOrigin.update({
         prototypeToken: {actorLink: true},
         system: {
-            traits: { size: {value: 'med'} }
+            traits: {size: {value: 'med'}}
         },
         flags: {
             [moduleName]: {
@@ -55,25 +144,29 @@ async function createTroop(count=16) {
     });
 
     let tokens = [];
-    for(let y = 0; y < 4; y++) {
-        for(let x = 0; x < 4; x++) {
+    for (let y = 0; y < 4; y++) {
+        for (let x = 0; x < 4; x++) {
             tokens.push(
                 (await actorOrigin.getTokenDocument({
                     x: originX + x * canvasDistance,
                     y: originY + y * canvasDistance,
                 })).toObject()
             )
-            if (tokens.length === count) { break; }
+            if (tokens.length === count) {
+                break;
+            }
         }
-        if (tokens.length === count) { break; }
+        if (tokens.length === count) {
+            break;
+        }
     }
 
-    tokens = await _token.scene.createEmbeddedDocuments("Token", tokens);
+    tokens = await token.scene.createEmbeddedDocuments("Token", tokens);
     if (inCombat) {
         await game.combat.createEmbeddedDocuments("Combatant", [
             {
                 tokenId: tokens[0].id,
-                initiative:inCombat.initiative,
+                initiative: inCombat.initiative,
             },
         ])
     }
@@ -90,8 +183,8 @@ Hooks.once("init", () => {
 
     game.pf2etroopshelper = foundry.utils.mergeObject(game.pf2etroopshelper ?? {}, {
         "formUp": formUp,
-        "createTroop": async function() {
-            const { count } = await Dialog.wait({
+        "createTroop": async function (token) {
+            const {count} = await Dialog.wait({
                 title: "Select number of tokens (up to 16)",
                 content: `
                     <input type="number" id="count" value="16"/>
@@ -100,7 +193,9 @@ Hooks.once("init", () => {
                     ok: {
                         label: "Create",
                         icon: '<i class="fa-thin fa-location-arrow"></i>',
-                        callback: (html) => { return { count: $(html).find('#count').val() } }
+                        callback: (html) => {
+                            return {count: $(html).find('#count').val()}
+                        }
                     },
                     cancel: {
                         label: "Cancel",
@@ -109,14 +204,18 @@ Hooks.once("init", () => {
                 },
                 default: "ok"
             });
-            if (!count) { return }
-            createTroop(Number(count));
+            if (!count) {
+                return
+            }
+            createTroop(token, Number(count));
         },
     });
 });
 
 Hooks.on('getSceneControlButtons', function addControl(sceneControls) {
-    if (!game.user.isGM) {return;}
+    if (!game.user.isGM) {
+        return;
+    }
 
     const tokenControl = sceneControls.find((c) => c.name === 'token');
     tokenControl.tools.push({
@@ -124,25 +223,33 @@ Hooks.on('getSceneControlButtons', function addControl(sceneControls) {
         title: 'Create Troop',
         icon: 'fas fa-people-arrows',
         button: true,
-        onClick: () => createTroop(),
+        onClick: () => createTroop(canvas.tokens.controlled[0]),
     });
 });
 
 Hooks.on('preDeleteToken', (token, data) => {
-    if (!game.combat) {return}
-    if (!token.actorLink) {return}
-    if (!token.actor?.getFlag(moduleName, "isTroop")) {return}
+    if (!game.combat) {
+        return
+    }
+    if (!token.actorLink) {
+        return
+    }
+    if (!token.actor?.getFlag(moduleName, "isTroop")) {
+        return
+    }
 
-    if ( token.actor.system.attributes.hp.value > 0 && game.combat.turns.find(a=>a.token.id === token.id) ) {
+    if (token.actor.system.attributes.hp.value > 0 && game.combat.turns.find(a => a.token.id === token.id)) {
         ui.notifications.info('This token cannot be deleted. Token in initiative tracker.');
         return false
     }
 })
 
 Hooks.on('preUpdateActor', async (actor, data, diff, id) => {
-    if (!actor.getFlag(moduleName, "isTroop")) {return}
+    if (!actor.getFlag(moduleName, "isTroop")) {
+        return
+    }
     if (data?.system?.attributes?.hp) {
-        const perc = (data.system.attributes.hp.value/actor.system.attributes?.hp.max).toFixed(2);
+        const perc = (data.system.attributes.hp.value / actor.system.attributes?.hp.max).toFixed(2);
         if (perc <= 0.33 && !actor.getFlag(moduleName, "secondStage")) {
             //inform about 1/3
             await actor.setFlag(moduleName, "secondStage", true);
@@ -154,8 +261,8 @@ Hooks.on('preUpdateActor', async (actor, data, diff, id) => {
             }
 
             if (game.settings.get(moduleName, "autoDelete")) {
-                let cTokens = game.combat?.turns?.map(a=>a.token.id) || [];
-                actor.getActiveTokens().filter(t=>!cTokens.includes(t.id)).slice(0, value).forEach(t=>{
+                let cTokens = game.combat?.turns?.map(a => a.token.id) || [];
+                actor.getActiveTokens().filter(t => !cTokens.includes(t.id)).slice(0, value).forEach(t => {
                     t.document.delete()
                 })
 
@@ -176,8 +283,8 @@ Hooks.on('preUpdateActor', async (actor, data, diff, id) => {
             await actor.setFlag(moduleName, "firstStage", true);
 
             if (game.settings.get(moduleName, "autoDelete")) {
-                let cTokens = game.combat?.turns?.map(a=>a.token.id) || [];
-                actor.getActiveTokens().filter(t=>!cTokens.includes(t.id)).slice(0, 4).forEach(t=>{
+                let cTokens = game.combat?.turns?.map(a => a.token.id) || [];
+                actor.getActiveTokens().filter(t => !cTokens.includes(t.id)).slice(0, 4).forEach(t => {
                     t.document.delete()
                 })
 
