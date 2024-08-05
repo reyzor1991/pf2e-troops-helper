@@ -1,5 +1,8 @@
 # Changelog
 
+### Version 1.0.0
+- public version
+
 ### Version 0.1.3
 - Fix form up
 
