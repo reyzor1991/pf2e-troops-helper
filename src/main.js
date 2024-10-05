@@ -212,45 +212,19 @@ Hooks.once("init", () => {
     });
 });
 
-class ReyzorLayer extends InteractionLayer {
-    constructor() {
-        super();
-    }
-}
-
-Hooks.on("canvasReady", (canvas) => {
-    if (!canvas.reyzorLayer) {
-        canvas.reyzorLayer = new ReyzorLayer()
-    }
-});
-
-Hooks.on('getSceneControlButtons', (sceneControls) => {
+Hooks.on('getSceneControlButtons', function addControl(sceneControls) {
     if (!game.user.isGM) {
         return;
     }
 
-    let tools = [
-        {
-            name: 'troop-army',
-            title: 'Create Troop',
-            icon: 'fas fa-people-arrows',
-            button: true,
-            onClick: () => createTroop(canvas.tokens.controlled[0]),
-        }
-    ]
-
-    const control = sceneControls.find(b => b.name === "reyzorMods");
-    if (!control) {
-        sceneControls.push({
-            name: 'reyzorMods',
-            title: "Reyzor's Mods",
-            icon: 'fa-solid fa-user-gear',
-            layer: 'reyzorLayer',
-            tools
-        });
-    } else {
-        control.tools.push(...tools);
-    }
+    const tokenControl = sceneControls.find((c) => c.name === 'token');
+    tokenControl.tools.push({
+        name: 'troop-army',
+        title: 'Create Troop',
+        icon: 'fas fa-people-arrows',
+        button: true,
+        onClick: () => createTroop(canvas.tokens.controlled[0]),
+    });
 });
 
 Hooks.on('preDeleteToken', (token, data) => {

@@ -1,8 +1,5 @@
 # Changelog
 
-### Version 1.0.1
-- Move icons btns from Token Control to new one
-
 ### Version 1.0.0
 - public version
 

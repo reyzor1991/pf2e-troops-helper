@@ -2,7 +2,7 @@
   "id": "pf2e-troops-helper",
   "title": "PF2e Troops Helper",
   "description": "PF2e Troops Helper",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "authors": [
     {
       "name": "Reyzor",
@@ -36,7 +36,7 @@
   "media": [],
   "compatibility": {
     "minimum": "11",
-    "verified": "12.331"
+    "verified": "12.327"
   },
   "url": "https://github.com/reyzor1991/pf2e-wiki/wiki/PF2e-Troops-Helper",
   "manifest": "https://www.dropbox.com/scl/fi/hgxwl7f9vb1awvf19dq5a/module.json?rlkey=4orntdjugav4b1y0gi17cqzag&dl=1",
