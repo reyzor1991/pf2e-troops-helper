@@ -113,6 +113,10 @@ async function createTroop(token, count = 16) {
         ui.notifications.info("Need create select token");
         return;
     }
+    if (!token.actor) {
+        ui.notifications.info("Please select token with actor");
+        return;
+    }
     if (!count || count < 0 || count > 16) {
         ui.notifications.info("Copies of token should be up to 16");
         return;

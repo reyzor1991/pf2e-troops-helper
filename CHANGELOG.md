@@ -1,5 +1,8 @@
 # Changelog
 
+### Version 1.0.3
+- Show error when select token without actor
+
 ### Version 1.0.2
 - reupload
 
