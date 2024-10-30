@@ -65,7 +65,7 @@ async function formUp(token) {
         return
     }
     if (!token) {
-        ui.notifications.info("Need create select token");
+        ui.notifications.info("Please select a token to form up a troop.");
         return;
     }
     let canvasDistance = canvas.dimensions?.size ?? 100
@@ -110,7 +110,7 @@ async function createTroop(token, count = 16) {
         return
     }
     if (!token) {
-        ui.notifications.info("Need create select token");
+        ui.notifications.info("lease select a token to form up a troop.");
         return;
     }
     if (!token.actor) {
