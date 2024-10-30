@@ -2,7 +2,7 @@
   "id": "pf2e-troops-helper",
   "title": "PF2e Troops Helper",
   "description": "PF2e Troops Helper",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "authors": [
     {
       "name": "Reyzor",
@@ -41,7 +41,7 @@
   "url": "https://github.com/reyzor1991/pf2e-wiki/wiki/PF2e-Troops-Helper",
   "manifest": "https://www.dropbox.com/scl/fi/hgxwl7f9vb1awvf19dq5a/module.json?rlkey=4orntdjugav4b1y0gi17cqzag&dl=1",
   "download": "https://www.dropbox.com/scl/fi/1etid3wb0ag1y4yzztcqd/pf2e-troops-helper.zip?rlkey=0ieu3gm24e6dn32qte9ed6383&dl=1",
-  "changelog": "https://www.dropbox.com/scl/fi/wiotqz8zxh4wmnq1ycqbf/CHANGELOG.md?rlkey=6braecilclkp7f3tm240up0cb&dl=1",
+  "changelog": "https://github.com/reyzor1991/pf2e-troops-helper/blob/master/CHANGELOG.md",
   "relationships": {
     "systems": [
       {
