@@ -1,4 +1,5 @@
-# Changelog
+### Version 1.1.0
+- Changing size of troops (option)
 
 ### Version 1.0.4
 - Fix Changelog link

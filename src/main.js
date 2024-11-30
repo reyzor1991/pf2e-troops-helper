@@ -1,5 +1,13 @@
 const moduleName = "pf2e-troops-helper";
 
+function translate(value) {
+    return game.i18n.localize(`${moduleName}.${value}`)
+}
+
+function translateFormat(value, data) {
+    return game.i18n.format(`${moduleName}.${value}`, data)
+}
+
 function getAllCoordinates(x, y, width) {
     const size = canvas.dimensions.size;
 
@@ -15,7 +23,7 @@ function getAllCoordinates(x, y, width) {
         x += size;
     }
     return arr
-};
+}
 
 const newCoords = [
     {x: -1, y: 0},
@@ -61,17 +69,17 @@ const newCoords = [
 
 async function formUp(token) {
     if (!game.user.isGM) {
-        ui.notifications.info(`Only GM can run script`);
+        ui.notifications.warn(translate("onlyGM"));
         return
     }
     if (!token) {
-        ui.notifications.info("Please select a token to form up a troop.");
+        ui.notifications.warn(translate("selectFormUp"));
         return;
     }
     let canvasDistance = canvas.dimensions?.size ?? 100
-    const tokensForUpdate = token.actor.getActiveTokens().filter(t => t != token);
+    const tokensForUpdate = token.actor.getActiveTokens().filter(t => t !== token);
     const occupied = token.scene.tokens
-        .filter(t => !tokensForUpdate.includes(t.object) && t.object != token)
+        .filter(t => !tokensForUpdate.includes(t.object) && t.object !== token)
         .map(t => getAllCoordinates(t.x, t.y, t.width)).flat()
         .map(a => JSON.stringify(a));
 
@@ -101,24 +109,25 @@ async function formUp(token) {
         let nn = availableLocations.shift();
         await ttt.document.update({x: nn.x, y: nn.y})
     }
-    ui.notifications.info(`Troop formed Up`);
+    ui.notifications.info(translate("formedUp"));
 }
 
 async function createTroop(token, count = 16) {
     if (!game.user.isGM) {
-        ui.notifications.info(`Only GM can run script`);
+        ui.notifications.warn(translate("onlyGM"));
         return
     }
     if (!token) {
-        ui.notifications.info("lease select a token to form up a troop.");
+        ui.notifications.warn(translate("selectCreate"));
+
         return;
     }
     if (!token.actor) {
-        ui.notifications.info("Please select token with actor");
+        ui.notifications.warn(translate("noActor"));
         return;
     }
     if (!count || count < 0 || count > 16) {
-        ui.notifications.info("Copies of token should be up to 16");
+        ui.notifications.warn(translate("copy16"));
         return;
     }
 
@@ -174,13 +183,14 @@ async function createTroop(token, count = 16) {
             },
         ])
     }
+    ui.notifications.info(translate("created"));
 }
 
 Hooks.once("init", () => {
     game.settings.register(moduleName, "autoDelete", {
         scope: "world",
         config: true,
-        name: "Auto delete tokens",
+        name: `${moduleName}.SETTINGS.delete.name`,
         default: false,
         type: Boolean,
     });
@@ -189,20 +199,20 @@ Hooks.once("init", () => {
         "formUp": formUp,
         "createTroop": async function (token) {
             const {count} = await Dialog.wait({
-                title: "Select number of tokens (up to 16)",
+                title: translate(`FORMS.createTroop.title`),
                 content: `
                     <input type="number" id="count" value="16"/>
                 `,
                 buttons: {
                     ok: {
-                        label: "Create",
+                        label: game.i18n.localize("PF2E.CreateLabelUniversal"),
                         icon: '<i class="fa-thin fa-location-arrow"></i>',
                         callback: (html) => {
                             return {count: $(html).find('#count').val()}
                         }
                     },
                     cancel: {
-                        label: "Cancel",
+                        label: game.i18n.localize("PF2E.Actions.EncouragingWords.Cancel"),
                         icon: "<i class='fa-solid fa-ban'></i>",
                     }
                 },
@@ -211,7 +221,7 @@ Hooks.once("init", () => {
             if (!count) {
                 return
             }
-            createTroop(token, Number(count));
+            await createTroop(token, Number(count));
         },
     });
 });
@@ -224,31 +234,28 @@ Hooks.on('getSceneControlButtons', function addControl(sceneControls) {
     const tokenControl = sceneControls.find((c) => c.name === 'token');
     tokenControl.tools.push({
         name: 'troop-army',
-        title: 'Create Troop',
+        title: `${moduleName}.createTroop`,
         icon: 'fas fa-people-arrows',
         button: true,
         onClick: () => createTroop(canvas.tokens.controlled[0]),
     });
 });
 
-Hooks.on('preDeleteToken', (token, data) => {
-    if (!game.combat) {
-        return
-    }
-    if (!token.actorLink) {
-        return
-    }
-    if (!token.actor?.getFlag(moduleName, "isTroop")) {
+Hooks.on('preDeleteToken', (token, _data) => {
+    if (!game.combat
+        || !token.actorLink
+        || !token.actor?.getFlag(moduleName, "isTroop")
+    ) {
         return
     }
 
     if (token.actor.system.attributes.hp.value > 0 && game.combat.turns.find(a => a.token.id === token.id)) {
-        ui.notifications.info('This token cannot be deleted. Token in initiative tracker.');
+        ui.notifications.warn(`${moduleName}.initiativeToken`);
         return false
     }
 })
 
-Hooks.on('preUpdateActor', async (actor, data, diff, id) => {
+Hooks.on('preUpdateActor', async (actor, data, _diff, _id) => {
     if (!actor.getFlag(moduleName, "isTroop")) {
         return
     }
@@ -272,13 +279,13 @@ Hooks.on('preUpdateActor', async (actor, data, diff, id) => {
 
                 ChatMessage.create({
                     type: CONST.CHAT_MESSAGE_TYPES.OOC,
-                    content: `${value} tokens were deleted, troop HP reduced to 1/3`,
+                    content: translateFormat("autoDeleteTokens", {value}),
                     whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
                 });
             } else {
                 ChatMessage.create({
                     type: CONST.CHAT_MESSAGE_TYPES.OOC,
-                    content: `Please delete ${value} tokens, troop HP reduced to 1/3`,
+                    content: translateFormat("needDeleteTokens", {value}),
                     whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
                 });
             }
@@ -294,13 +301,13 @@ Hooks.on('preUpdateActor', async (actor, data, diff, id) => {
 
                 ChatMessage.create({
                     type: CONST.CHAT_MESSAGE_TYPES.OOC,
-                    content: `4 tokens were deleted, troop HP reduced to 2/3`,
+                    content: translate("autoDelete4"),
                     whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
                 });
             } else {
                 ChatMessage.create({
                     type: CONST.CHAT_MESSAGE_TYPES.OOC,
-                    content: `Please delete 4 tokens, troop HP reduced to 2/3`,
+                    content: translate("needDelete4"),
                     whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
                 });
             }

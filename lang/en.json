@@ -1,0 +1,27 @@
+{
+  "pf2e-troops-helper": {
+    "SETTINGS": {
+      "delete": {
+        "name": "Auto delete tokens"
+      }
+    },
+    "FORMS": {
+      "createTroop": {
+        "title": "Select number of tokens (up to 16)"
+      }
+    },
+    "createTroop": "Create Troop",
+    "onlyGM": "Only GM can run script",
+    "formedUp": "Troop formed Up",
+    "created": "Troops were created",
+    "selectFormUp": "Please select a token to form up a troop.",
+    "selectCreate": "Please select a token to create up a troop.",
+    "noActor": "Please select token with actor",
+    "copy16": "Copies of token should be up to 16",
+    "initiativeToken": "This token cannot be deleted. Token in initiative tracker",
+    "autoDeleteTokens": "{value} tokens were deleted, troop HP reduced to 1/3",
+    "needDeleteTokens": "Please delete {value} tokens, troop HP reduced to 1/3",
+    "autoDelete4": "4 tokens were deleted, troop HP reduced to 2/3",
+    "needDelete4": "Please delete 4 tokens, troop HP reduced to 2/3"
+  }
+}
