@@ -119,7 +119,6 @@ async function createTroop(token, count = 16) {
     }
     if (!token) {
         ui.notifications.warn(translate("selectCreate"));
-
         return;
     }
     if (!token.actor) {
@@ -186,6 +185,20 @@ async function createTroop(token, count = 16) {
     ui.notifications.info(translate("created"));
 }
 
+async function createTroopSize(token) {
+    await token.actor.update({
+        flags: {
+            [moduleName]: {
+                isTroopSize: true,
+                firstStage: false,
+                secondStage: false,
+            }
+        }
+    });
+
+    ui.notifications.info(translate("created"));
+}
+
 Hooks.once("init", () => {
     game.settings.register(moduleName, "autoDelete", {
         scope: "world",
@@ -198,6 +211,52 @@ Hooks.once("init", () => {
     game.pf2etroopshelper = foundry.utils.mergeObject(game.pf2etroopshelper ?? {}, {
         "formUp": formUp,
         "createTroop": async function (token) {
+            if (!game.user.isGM) {
+                ui.notifications.warn(translate("onlyGM"));
+                return
+            }
+            if (!token) {
+                ui.notifications.warn(translate("selectCreate"));
+                return;
+            }
+            if (!token.actor) {
+                ui.notifications.warn(translate("noActor"));
+                return;
+            }
+
+            const {createType} = await foundry.applications.api.DialogV2.wait({
+                window: {title: translate("selectTransformation")},
+                content: `
+                    <select id="fob1" autofocus>
+                        <option value="multi">${translate("multiTokens")}</option>
+                        <option value="size">${translate("sizeChanging")}</option>
+                    </select>
+                `,
+                buttons: [{
+                    action: "ok",
+                    label: translate("select"),
+                    icon: "<i class='fa-solid fa-hand-fist'></i>",
+                    callback: (event, button, form) => {
+                        return {
+                            createType: $(form).find("#fob1").val(),
+                        }
+                    }
+                }, {
+                    action: "cancel",
+                    label: translate("cancel"),
+                    icon: "<i class='fa-solid fa-ban'></i>",
+                }],
+                default: "ok"
+            });
+            if (!createType) {
+                return
+            }
+
+            if (createType === "size") {
+                await createTroopSize(token);
+                return
+            }
+
             const {count} = await Dialog.wait({
                 title: translate(`FORMS.createTroop.title`),
                 content: `
@@ -205,14 +264,14 @@ Hooks.once("init", () => {
                 `,
                 buttons: {
                     ok: {
-                        label: game.i18n.localize("PF2E.CreateLabelUniversal"),
+                        label: translate("create"),
                         icon: '<i class="fa-thin fa-location-arrow"></i>',
                         callback: (html) => {
                             return {count: $(html).find('#count').val()}
                         }
                     },
                     cancel: {
-                        label: game.i18n.localize("PF2E.Actions.EncouragingWords.Cancel"),
+                        label: translate("cancel"),
                         icon: "<i class='fa-solid fa-ban'></i>",
                     }
                 },
@@ -311,6 +370,47 @@ Hooks.on('preUpdateActor', async (actor, data, _diff, _id) => {
                     whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
                 });
             }
+        }
+
+    }
+});
+
+Hooks.on('preUpdateActor', async (actor, data, _diff, _id) => {
+    if (!actor.getFlag(moduleName, "isTroopSize")) {
+        return
+    }
+    if (data?.system?.attributes?.hp) {
+        const perc = (data.system.attributes.hp.value / actor.system.attributes?.hp.max).toFixed(2);
+        if (perc <= 0.33 && !actor.getFlag(moduleName, "secondStage")) {
+            //inform about 1/3
+            await actor.setFlag(moduleName, "secondStage", true);
+
+            if (!actor.getFlag(moduleName, "firstStage")) {
+                await actor.setFlag(moduleName, "firstStage", true);
+            }
+
+            await actor.update({
+                "system.traits.size.value": "lg"
+            })
+
+            ChatMessage.create({
+                type: CONST.CHAT_MESSAGE_TYPES.OOC,
+                content: translate("sizeChanged"),
+                whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
+            });
+        } else if (perc <= 0.66 && !actor.getFlag(moduleName, "firstStage")) {
+            //inform about 2/3
+            await actor.setFlag(moduleName, "firstStage", true);
+
+            await actor.update({
+                "system.traits.size.value": "huge"
+            })
+
+            ChatMessage.create({
+                type: CONST.CHAT_MESSAGE_TYPES.OOC,
+                content: translate("sizeChanged"),
+                whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
+            });
         }
 
     }
