@@ -1,3 +1,6 @@
+### Version 1.1.1
+- Ring enabled for main token - to detect token in initiative
+
 ### Version 1.1.0
 - Changing size of troops (option)
 

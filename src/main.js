@@ -174,6 +174,12 @@ async function createTroop(token, count = 16) {
     }
 
     tokens = await token.scene.createEmbeddedDocuments("Token", tokens);
+    tokens[0].update({
+        "ring.enabled": true,
+        "ring.colors.ring": "#ff0000",
+        "ring.effects": 3
+
+    })
     if (inCombat) {
         await game.combat.createEmbeddedDocuments("Combatant", [
             {
