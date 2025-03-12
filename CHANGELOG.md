@@ -1,3 +1,6 @@
+### Version 1.2.0
+- NPC rule. Create 4 large tokens
+
 ### Version 1.1.1
 - Ring enabled for main token - to detect token in initiative
 

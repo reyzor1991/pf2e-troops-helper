@@ -112,7 +112,7 @@ async function formUp(token) {
     ui.notifications.info(translate("formedUp"));
 }
 
-async function createTroop(token, count = 16) {
+async function createTroop(token, count = 16, tokenSize = "med") {
     if (!game.user.isGM) {
         ui.notifications.warn(translate("onlyGM"));
         return
@@ -144,7 +144,7 @@ async function createTroop(token, count = 16) {
     await actorOrigin.update({
         prototypeToken: {actorLink: true},
         system: {
-            traits: {size: {value: 'med'}}
+            traits: {size: {value: tokenSize}}
         },
         flags: {
             [moduleName]: {
@@ -155,13 +155,21 @@ async function createTroop(token, count = 16) {
         }
     });
 
+    let step = tokenSize === "lg"
+        ? canvasDistance * 2
+        : canvasDistance
+
+    let range = tokenSize === "lg"
+        ? 2
+        : 4
+
     let tokens = [];
-    for (let y = 0; y < 4; y++) {
-        for (let x = 0; x < 4; x++) {
+    for (let y = 0; y < range; y++) {
+        for (let x = 0; x < range; x++) {
             tokens.push(
                 (await actorOrigin.getTokenDocument({
-                    x: originX + x * canvasDistance,
-                    y: originY + y * canvasDistance,
+                    x: originX + x * step,
+                    y: originY + y * step,
                 })).toObject()
             )
             if (tokens.length === count) {
@@ -236,6 +244,7 @@ Hooks.once("init", () => {
                     <select id="fob1" autofocus>
                         <option value="multi">${translate("multiTokens")}</option>
                         <option value="size">${translate("sizeChanging")}</option>
+                        <option value="npc">${translate("npc")}</option>
                     </select>
                 `,
                 buttons: [{
@@ -260,6 +269,9 @@ Hooks.once("init", () => {
 
             if (createType === "size") {
                 await createTroopSize(token);
+                return
+            } else if (createType === "npc") {
+                await createTroop(token, 4, "lg");
                 return
             }
 
@@ -315,7 +327,7 @@ Hooks.on('preDeleteToken', (token, _data) => {
     }
 
     if (token.actor.system.attributes.hp.value > 0 && game.combat.turns.find(a => a.token.id === token.id)) {
-        ui.notifications.warn(`${moduleName}.initiativeToken`);
+        ui.notifications.warn(translate(`initiativeToken`));
         return false
     }
 })
@@ -330,10 +342,10 @@ Hooks.on('preUpdateActor', async (actor, data, _diff, _id) => {
             //inform about 1/3
             await actor.setFlag(moduleName, "secondStage", true);
 
-            let value = 4;
+            let value = actor.system.traits.size.value === "med" ? 4 : 1;
             if (!actor.getFlag(moduleName, "firstStage")) {
                 await actor.setFlag(moduleName, "firstStage", true);
-                value = 8;
+                value = value * 2;
             }
 
             if (game.settings.get(moduleName, "autoDelete")) {
@@ -358,21 +370,24 @@ Hooks.on('preUpdateActor', async (actor, data, _diff, _id) => {
             //inform about 2/3
             await actor.setFlag(moduleName, "firstStage", true);
 
+
+            let value = actor.system.traits.size.value === "med" ? 4 : 1;
+
             if (game.settings.get(moduleName, "autoDelete")) {
                 let cTokens = game.combat?.turns?.map(a => a.token.id) || [];
-                actor.getActiveTokens().filter(t => !cTokens.includes(t.id)).slice(0, 4).forEach(t => {
+                actor.getActiveTokens().filter(t => !cTokens.includes(t.id)).slice(0, value).forEach(t => {
                     t.document.delete()
                 })
 
                 ChatMessage.create({
                     type: CONST.CHAT_MESSAGE_TYPES.OOC,
-                    content: translate("autoDelete4"),
+                    content: translateFormat("autoDelete4", {value}),
                     whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
                 });
             } else {
                 ChatMessage.create({
                     type: CONST.CHAT_MESSAGE_TYPES.OOC,
-                    content: translate("needDelete4"),
+                    content: translateFormat("needDelete4", {value}),
                     whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id)
                 });
             }

@@ -24,10 +24,11 @@
     "initiativeToken": "This token cannot be deleted. Token in initiative tracker",
     "autoDeleteTokens": "{value} tokens were deleted, troop HP reduced to 1/3",
     "needDeleteTokens": "Please delete {value} tokens, troop HP reduced to 1/3",
-    "autoDelete4": "4 tokens were deleted, troop HP reduced to 2/3",
-    "needDelete4": "Please delete 4 tokens, troop HP reduced to 2/3",
+    "autoDelete4": "{value} tokens were deleted, troop HP reduced to 2/3",
+    "needDelete4": "Please delete {value} tokens, troop HP reduced to 2/3",
     "selectTransformation": "Select type of transformation",
     "multiTokens": "Multi tokens",
+    "npc": "NPC Core",
     "sizeChanging": "Size changing",
     "sizeChanged": "Size of troop were changed"
   }
