@@ -83,23 +83,36 @@ async function formUp(token) {
         .map(t => getAllCoordinates(t.x, t.y, t.width)).flat()
         .map(a => JSON.stringify(a));
 
+    let step = token.actor.size === "lg"
+        ? canvasDistance * 2
+        : canvasDistance
+
     let newPossibleLocations = foundry.utils.deepClone(newCoords).map(c => {
         return {
-            x: token.x + c.x * canvasDistance,
-            cx: token.center.x + c.x * canvasDistance,
-            y: token.y + c.y * canvasDistance,
-            cy: token.center.y + c.y * canvasDistance
+            x: token.x + c.x * step,
+            cx: token.center.x + c.x * step,
+            y: token.y + c.y * step,
+            cy: token.center.y + c.y * step,
+            width: token.document.width,
         }
     });
 
-    let availableLocations = newPossibleLocations.filter(coo => {
+    let checkWalls = newPossibleLocations.filter(coo => {
         return !CONFIG.Canvas.polygonBackends.move.testCollision(token.center, {x: coo.cx, y: coo.cy}, {
             type: 'move',
             mode: 'any'
         })
-    }).filter(target => {
-        return !occupied.includes(JSON.stringify({x: target.x, y: target.y}));
     });
+
+    let availableLocations = checkWalls.filter(target => {
+        let all = getAllCoordinates(target.x, target.y, target.width)
+        return all.every(a=>!occupied.includes(JSON.stringify({x: a.x, y: a.y})));
+    }).sort((p1, p2) => {
+        const dist1 = Math.hypot(p1.x - token.x, p1.y - token.y);
+        const dist2 = Math.hypot(p2.x - token.x, p2.y - token.y);
+        return dist1 - dist2;
+    });;
+
 
     for (let i = 0; i < tokensForUpdate.length; i++) {
         if (!availableLocations.length) {

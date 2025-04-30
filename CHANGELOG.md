@@ -1,3 +1,6 @@
+### Version 1.2.1
+- Fix form up
+
 ### Version 1.2.0
 - NPC rule. Create 4 large tokens via macro
 
