@@ -2,7 +2,7 @@
   "id": "pf2e-troops-helper",
   "title": "PF2e Troops Helper",
   "description": "PF2e Troops Helper",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "authors": [
     {
       "name": "Reyzor",
@@ -41,12 +41,12 @@
   ],
   "media": [],
   "compatibility": {
-    "minimum": "11",
-    "verified": "12.327"
+    "minimum": "13.341",
+    "verified": "13.342"
   },
   "url": "https://github.com/reyzor1991/pf2e-wiki/wiki/PF2e-Troops-Helper",
-  "manifest": "https://www.dropbox.com/scl/fi/hgxwl7f9vb1awvf19dq5a/module.json?rlkey=4orntdjugav4b1y0gi17cqzag&dl=1",
-  "download": "https://www.dropbox.com/scl/fi/1etid3wb0ag1y4yzztcqd/pf2e-troops-helper.zip?rlkey=0ieu3gm24e6dn32qte9ed6383&dl=1",
+  "manifest": "https://www.dropbox.com/scl/fi/a0aktbnojuqquuy0ms962/module.json?rlkey=ts11nfnn6cewvxzy68qhdxelc&st=l8caysdu&dl=1",
+  "download": "https://www.dropbox.com/scl/fi/o3vhezkd14concwddsmnk/pf2e-troops-helper.zip?rlkey=rtgrsh1s99e6xjqtxejajwz6z&st=vg52dgyu&dl=1",
   "changelog": "https://github.com/reyzor1991/pf2e-troops-helper/blob/master/CHANGELOG.md",
   "relationships": {
     "systems": [
@@ -55,8 +55,8 @@
         "type": "system",
         "manifest": "https://github.com/foundryvtt/pf2e/releases/latest/download/system.json",
         "compatibility": {
-          "minimum": "5.4.1",
-          "verified": "5.9.5"
+          "minimum": "7.0.0",
+          "verified": "7.0.0"
         }
       }
     ],

@@ -321,14 +321,13 @@ Hooks.on('getSceneControlButtons', function addControl(sceneControls) {
         return;
     }
 
-    const tokenControl = sceneControls.find((c) => c.name === 'token');
-    tokenControl.tools.push({
-        name: 'troop-army',
+    sceneControls.tokens.tools.troopArmy ={
+        name: 'troopArmy',
         title: `${moduleName}.createTroop`,
         icon: 'fas fa-people-arrows',
         button: true,
-        onClick: () => createTroop(canvas.tokens.controlled[0]),
-    });
+        onChange: () => createTroop(canvas.tokens.controlled[0]),
+    };
 });
 
 Hooks.on('preDeleteToken', (token, _data) => {
