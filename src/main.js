@@ -266,7 +266,7 @@ Hooks.once("init", () => {
                     icon: "<i class='fa-solid fa-hand-fist'></i>",
                     callback: (event, button, form) => {
                         return {
-                            createType: $(form).find("#fob1").val(),
+                            createType: $(form.element).find("#fob1").val(),
                         }
                     }
                 }, {
