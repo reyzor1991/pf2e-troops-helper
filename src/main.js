@@ -106,12 +106,13 @@ async function formUp(token) {
 
     let availableLocations = checkWalls.filter(target => {
         let all = getAllCoordinates(target.x, target.y, target.width)
-        return all.every(a=>!occupied.includes(JSON.stringify({x: a.x, y: a.y})));
+        return all.every(a => !occupied.includes(JSON.stringify({x: a.x, y: a.y})));
     }).sort((p1, p2) => {
         const dist1 = Math.hypot(p1.x - token.x, p1.y - token.y);
         const dist2 = Math.hypot(p2.x - token.x, p2.y - token.y);
         return dist1 - dist2;
-    });;
+    });
+    ;
 
 
     for (let i = 0; i < tokensForUpdate.length; i++) {
@@ -157,7 +158,10 @@ async function createTroop(token, count = 16, tokenSize = "med") {
     await actorOrigin.update({
         prototypeToken: {actorLink: true},
         system: {
-            traits: {size: {value: tokenSize}}
+            traits: {size: {value: tokenSize}},
+            attributes: {
+                adjustment: token.actor.isWeak ? "weak" : token.actor.isElite ? "elite" : null
+            }
         },
         flags: {
             [moduleName]: {
@@ -321,7 +325,7 @@ Hooks.on('getSceneControlButtons', function addControl(sceneControls) {
         return;
     }
 
-    sceneControls.tokens.tools.troopArmy ={
+    sceneControls.tokens.tools.troopArmy = {
         name: 'troopArmy',
         title: `${moduleName}.createTroop`,
         icon: 'fas fa-people-arrows',

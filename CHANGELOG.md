@@ -1,3 +1,6 @@
+### Version 1.3.2
+- fix creating troop as elite/weak
+
 ### Version 1.3.1
 - fix creating troop
 
