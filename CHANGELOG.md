@@ -1,3 +1,6 @@
+### Version 1.3.3
+- Add setting - hide toolbar btn
+
 ### Version 1.3.2
 - fix creating troop as elite/weak
 

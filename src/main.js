@@ -238,6 +238,14 @@ Hooks.once("init", () => {
         default: false,
         type: Boolean,
     });
+    game.settings.register(moduleName, "hideToolbar", {
+        scope: "world",
+        config: true,
+        name: `${moduleName}.SETTINGS.hideToolbar.name`,
+        default: false,
+        requiresReload: true,
+        type: Boolean,
+    });
 
     game.pf2etroopshelper = foundry.utils.mergeObject(game.pf2etroopshelper ?? {}, {
         "formUp": formUp,
@@ -322,6 +330,9 @@ Hooks.once("init", () => {
 
 Hooks.on('getSceneControlButtons', function addControl(sceneControls) {
     if (!game.user.isGM) {
+        return;
+    }
+    if (game.settings.get(moduleName, "hideToolbar")) {
         return;
     }
 

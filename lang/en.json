@@ -3,6 +3,9 @@
     "SETTINGS": {
       "delete": {
         "name": "Auto delete tokens"
+      },
+      "hideToolbar": {
+        "name": "Hide toolbar btn"
       }
     },
     "FORMS": {
